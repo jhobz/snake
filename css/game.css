@@ -1,0 +1,15 @@
+.scoreboard {
+	width: 720px;
+	height: 50px;
+}
+
+.board {
+	width: 720px;
+	height: 720px;
+	border: 1px solid #aaa;
+}
+
+.board td {
+	width: 23px;
+	height: 23px;
+}

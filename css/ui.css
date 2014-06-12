@@ -1,3 +1,48 @@
+.vertically-center {
+	position: relative;
+	top: 50%;
+	-webkit-transform: translateY(-50%);
+	   -moz-transform: translateY(-50%);
+	        transform: translateY(-50%);
+}
+
 .main-content {
 	padding-top: 70px;
+	background-color: #eee;
+}
+
+.game-container {
+	position: relative;
+}
+
+.game-container .overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.game-container .overlay .overlay-wrapper {
+	width: 100%;
+	height: 100%;
+}
+
+.game-container .overlay .overlay-bg {
+	background-color: #aaa;
+	width: 500px;
+	height: 500px;
+	border-radius: 25px;
+	display: block;
+	margin: 0 auto;
+}
+
+.title {
+	font-size: 3em;
+	font-weight: bold;
+}
+
+footer {
+	color: #aaa;
+	text-align: center;
 }
