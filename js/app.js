@@ -89,6 +89,51 @@ function SnakeGame(containerId, config) {
 	function Point(x, y) {
 		this.x = x;
 		this.y = y;
+
+		this.movePoint = function(heading) {
+			if (heading == constants.DIRECTION_LEFT)
+				this.x--;
+			else if (heading == constants.DIRECTION_UP)
+				this.y--;
+			else if (heading == constants.DIRECTION_RIGHT)
+				this.x++;
+			else if (heading == constants.DIRECTION_DOWN)
+				this.y++;
+			else
+				throw "Cannot calculate next point (invalid direction)";
+		}
+	}
+
+	/**
+	  * Model for game snake.
+	  */
+	function Snake(origin, direction) {
+		var head = tail = origin instanceof Point ? origin : new Point(0, 0);
+		var heading = direction || constants.DIRECTION_DEFAULT;
+		this.length = 1;
+
+		// Attempt to change the heading of the snake. Returns true if
+		// the heading was changed. Return false if the direction
+		// cannot be changed (if the snake is against the wall).
+		this.changeDirection = function(dir) {
+			if (!dir || dir < -2 || dir > 2 || !(dir instanceof Number))
+				throw "Invalid snake direction";
+
+			var newPoint = head.movePoint(dir);
+			if (board.isValidPoint(newPoint)) {
+				heading = dir;
+				return true;
+			}
+			return false;
+		}
+
+		// Updates the data model with a movement in the current
+		// direction. The point should already be checked for validity
+		// by the game engine before calling the move() function.
+		this.move = function() {
+			head = head.movePoint(heading);
+			this.length++;
+		}
 	}
 
 	/**
