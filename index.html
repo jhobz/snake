@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta name="viewport"
+			  content="width=device-width, initial-scale=1, user-scalable=no">
 		<link rel="stylesheet" href="vendor/bootstrap/bootstrap.min.css">
 		<link rel="stylesheet" href="css/ui.css">
 		<link rel="stylesheet" href="css/game.css">
@@ -14,8 +16,8 @@
 
 					<!-- Mobile toggle compatibility -->
 					<div class="navbar-header">
-						<button type="button" class="navbar-toggle" data-toggle="collapse"
-								data-target="#navbar-collapse-1">
+						<button type="button" class="navbar-toggle"
+								data-toggle="collapse" data-target="#navbar-collapse-1">
 							<span class="sr-only">Toggle navigation</span>
 							<span class="icon-bar"></span>
 							<span class="icon-bar"></span>
@@ -35,10 +37,19 @@
 				</div><!-- /.container-fluid -->
 			</nav>
 		</header>
-		<section class="game-container" role="game">
-			
+		<section class="container main-content">
+			<div class="game-container" id="game-container" role="game">
+				<script type="text/javascript">
+					$(function() {
+						var config = {};
+						var game = new SnakeGame($('#game-container'), config);
+					})
+				</script>
+			</div>
 		</section>
 		<footer>
+			This site content is licensed under the terms of the
+			<a href="http://en.wikipedia.org/en/MIT_License">MIT license</a>.
 		</footer>
 	</body>
 </html>
