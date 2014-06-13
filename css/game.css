@@ -1,15 +1,26 @@
 .scoreboard {
 	width: 720px;
 	height: 50px;
+	margin: 0 auto;
 }
 
 .board {
+	table-layout: fixed;
 	width: 720px;
-	height: 720px;
 	border: 1px solid #aaa;
+	margin: 0 auto;
 }
 
 .board td {
-	width: 23px;
-	height: 23px;
+	width: 30%;
+}
+
+/* Mobile size overrides */
+@media (max-width: 768px) {
+	.scoreboard {
+		width: 92%;
+	}
+	.board {
+		width: 92%;
+	}
 }

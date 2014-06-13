@@ -80,8 +80,6 @@ function SnakeGame(containerId, userConfig) {
 				throw "Matrix point out of bounds";
 			matrix[row][col] = val;
 		}
-
-		this.getMatrix=function(){return matrix;}
 	}
 
 	/**
@@ -129,8 +127,6 @@ function SnakeGame(containerId, userConfig) {
 				throw "Cannot set point: point must be valid";
 			grid.set(point.y, point.x, value);
 		}
-
-		this.getGrid=function(){return grid;}
 	}
 
 	/**
@@ -217,6 +213,10 @@ function SnakeGame(containerId, userConfig) {
 		this.getId = function() {
 			return snakeId;
 		}
+
+		this.getPoint = function() {
+			return head;
+		}
 	}
 	/**
 	  * Persistent id is used to identify individual snakes on the game board.
@@ -269,11 +269,6 @@ function SnakeGame(containerId, userConfig) {
 		}
 
 		this.renderFrame = function() {
-			console.log('render frame');
-			console.log(state);
-			console.log(board.at(new Point(0,0)));
-			console.log(board.getGrid());
-			console.log(board.getGrid().getMatrix());
 			if (state == constants.STATE_PLAYING)
 				for (var r = 0; r < config.GAME_HEIGHT; r++)
 					for (var c = 0; c < config.GAME_WIDTH; c++)
@@ -375,25 +370,20 @@ function SnakeGame(containerId, userConfig) {
 		}
 
 		this.playFrame = function() {
-			console.log('playFrame');
 			if (direction != snake.getDirection()) {
-				console.log('directions were not equal');
 				// Snake will not turn directly into wall if lined up against one.
 				// This is to prevent unnatural cases where the user might not
 				// understand how they lost since there is no visual feedback.
 				if(!snake.changeDirection(direction))
 					direction = snake.getDirection();
 			}
-			console.log(snake);
 			
 			// Game continues if snake makes a valid move
 			if (snake.move()) {
-				console.log('snake moved!');
 				score = snake.getLength();
 				view.renderFrame();
 			}
 			else {
-				console.log('game over');
 				this.endGame();
 			}
 		}
@@ -401,6 +391,7 @@ function SnakeGame(containerId, userConfig) {
 		function startListening() {
 			if (!listening) {
 				$(window).keydown(keyPressed);
+				$(window).on('touchstart', keyPressed);
 				listening = true;
 			}
 		}
@@ -408,30 +399,57 @@ function SnakeGame(containerId, userConfig) {
 		function stopListening() {
 			if (listening) {
 				$(window).off('keydown', keyPressed);
+				$(window).off('touchstart', keyPressed)
 				listening = false;
 			}
 		}
 
 		function keyPressed(e) {
-			switch (e.keyCode) {
-				case 27: // Esc
-					clearInterval(intervalHandle);
-					stopListening();
-					break;
-				case 37:
-					direction = constants.DIRECTION_LEFT;
-					break;
-				case 38:
-					direction = constants.DIRECTION_UP;
-					break;
-				case 39:
-					direction = constants.DIRECTION_RIGHT;
-					break;
-				case 40:
-					direction = constants.DIRECTION_DOWN;
-					break;
+			if (e.keyCode) {
+				switch (e.keyCode) {
+					case 27: // Esc
+						clearInterval(intervalHandle);
+						stopListening();
+						break;
+					case 37:
+						direction = constants.DIRECTION_LEFT;
+						break;
+					case 38:
+						direction = constants.DIRECTION_UP;
+						break;
+					case 39:
+						direction = constants.DIRECTION_RIGHT;
+						break;
+					case 40:
+						direction = constants.DIRECTION_DOWN;
+						break;
+				}
+				e.preventDefault();
 			}
-			event.preventDefault();
+			else { // touchevent
+				var targetId = e.target.id;
+				var xIndex   = targetId.indexOf('x');
+				var spoint   = snake.getPoint();
+				var srow     = spoint.y;
+				var scol     = spoint.x;
+				var trow     = parseInt(targetId.substring(0, xIndex));
+				var tcol     = parseInt(targetId.substring(xIndex + 1));
+
+				// Determine new direction
+				if (direction == constants.DIRECTION_LEFT ||
+					direction == constants.DIRECTION_RIGHT) {
+					if (trow - srow <= 0)
+						direction = constants.DIRECTION_UP;
+					else
+						direction = constants.DIRECTION_DOWN;
+				}
+				else {
+					if (tcol - scol <= 0)
+						direction = constants.DIRECTION_LEFT;
+					else
+						direction = constants.DIRECTION_RIGHT;
+				}
+			}
 		}
 	}
 

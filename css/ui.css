@@ -8,6 +8,7 @@
 
 .main-content {
 	padding-top: 70px;
+	padding-bottom: 20px;
 	background-color: #eee;
 }
 
@@ -30,8 +31,10 @@
 
 .game-container .overlay .overlay-bg {
 	background-color: #aaa;
-	width: 500px;
-	height: 500px;
+	/*width: 350px;
+	height: 350px;*/
+	width: 50%;
+	height: 50%;
 	border-radius: 25px;
 	display: block;
 	margin: 0 auto;
@@ -43,6 +46,24 @@
 }
 
 footer {
+	padding-top: 20px;
 	color: #aaa;
 	text-align: center;
+}
+
+/* Mobile size overrides */
+@media (max-width: 768px) {
+	.game-container .overlay .overlay-bg {
+		/*width: 550px;
+		height: 550px;*/
+		width: 75%;
+		height: 75%;
+	}
+
+	/*@media (-webkit-min-device-pixel-ratio: 2) {
+		.game-container .overlay .overlay-bg {
+			width: 275px;
+			height: 275px;
+		}
+	}*/
 }
