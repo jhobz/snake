@@ -1,7 +1,48 @@
+.game-container {
+	position: relative;
+}
+
+.game-container .overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+.game-container .overlay .overlay-wrapper {
+	width: 100%;
+	height: 100%;
+}
+
+.game-container .overlay .overlay-bg {
+	background-color: #aaa;
+	width: 50%;
+	height: 50%;
+	border-radius: 25px;
+	margin: 0 auto;
+}
+
 .scoreboard {
 	width: 720px;
 	height: 50px;
 	margin: 0 auto;
+	color: white;
+	padding: 5px 20px;
+	font-size: 2em;
+}
+
+.scoreboard .score {
+	width: 110px;
+	font-size: 0.5em;
+}
+
+.scoreboard .score:first-child {
+	text-align: left;
+}
+
+.scoreboard .score:last-child {
+	text-align: right;
 }
 
 .board {
@@ -15,8 +56,29 @@
 	width: 30%;
 }
 
+.scoretable-container {
+	width: 250px;
+	margin: 20px auto;
+	text-align: center;
+}
+
+/* Bootstrap override */
+.scoretable th {
+	text-align: center;
+}
+
+#game-highscoreInput {
+	width: 50px;
+	margin-left: 5px;
+	text-align: center;
+}
+
 /* Mobile size overrides */
 @media (max-width: 768px) {
+	.game-container .overlay .overlay-bg {
+		width: 75%;
+		height: 75%;
+	}
 	.scoreboard {
 		width: 92%;
 	}

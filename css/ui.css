@@ -12,34 +12,6 @@
 	background-color: #eee;
 }
 
-.game-container {
-	position: relative;
-}
-
-.game-container .overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-}
-
-.game-container .overlay .overlay-wrapper {
-	width: 100%;
-	height: 100%;
-}
-
-.game-container .overlay .overlay-bg {
-	background-color: #aaa;
-	/*width: 350px;
-	height: 350px;*/
-	width: 50%;
-	height: 50%;
-	border-radius: 25px;
-	display: block;
-	margin: 0 auto;
-}
-
 .title {
 	font-size: 3em;
 	font-weight: bold;
@@ -49,21 +21,4 @@ footer {
 	padding-top: 20px;
 	color: #aaa;
 	text-align: center;
-}
-
-/* Mobile size overrides */
-@media (max-width: 768px) {
-	.game-container .overlay .overlay-bg {
-		/*width: 550px;
-		height: 550px;*/
-		width: 75%;
-		height: 75%;
-	}
-
-	/*@media (-webkit-min-device-pixel-ratio: 2) {
-		.game-container .overlay .overlay-bg {
-			width: 275px;
-			height: 275px;
-		}
-	}*/
 }
