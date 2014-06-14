@@ -50,6 +50,10 @@ function SnakeGame(containerId, userConfig) {
 
 	/**
 	  * Simple matrix class to be utilized by game board.
+	  *
+	  * @param rows number of rows
+	  * @param cols number of columns
+	  * @param value initial value of cells
 	  */
 	function Matrix(rows, cols, value) {
 		this.rows = rows || 0;
@@ -84,6 +88,9 @@ function SnakeGame(containerId, userConfig) {
 
 	/**
 	  * Game board class.
+	  *
+	  * @param width width of game grid
+	  * @param height height of game grid
 	  */
 	function Board(width, height) {
 		var EMPTY_CELL = 0;
@@ -131,6 +138,9 @@ function SnakeGame(containerId, userConfig) {
 
 	/**
 	  * Point class for game board.
+	  *
+	  * @param x horizontal coordinate (from left) in game grid
+	  * @param y vertical coordinate (from top) in game grid
 	  */
 	function Point(x, y) {
 		this.x = x;
@@ -162,6 +172,9 @@ function SnakeGame(containerId, userConfig) {
 
 	/**
 	  * Model for game snake.
+	  *
+	  * @param origin start point of snake (Point type)
+	  * @param direction initial heading of snake
 	  */
 	function Snake(origin, direction) {
 		var head = tail = origin instanceof Point ? origin : new Point(0, 0);
@@ -222,7 +235,7 @@ function SnakeGame(containerId, userConfig) {
 		}
 	}
 	/**
-	  * Persistent id is used to identify individual snakes on the game board.
+	  * Persistent id used to identify individual snakes on the game board.
 	  */
 	Snake.prototype.id = 1;
 	Snake.prototype.generateId = function() {
@@ -242,6 +255,7 @@ function SnakeGame(containerId, userConfig) {
 		this.highscore = 0;
 		this.topscores = [];
 
+		// Load high scores from local storage (if they exist).
 		this.loadScores = function() {
 			// Top scores are saved in order: [ { name: INITIALS, score: SCORE }, ... ]
 			if (localStorage && localStorage.getItem('topscores')) {
@@ -250,6 +264,8 @@ function SnakeGame(containerId, userConfig) {
 			}
 		}
 
+		// Save new high scores to local storage with specified initials
+		// for current score. Issue a warning if unable to access localStorage.
 		this.saveScores = function(initials) {
 			if (localStorage) {
 				this.topscores.push({
@@ -268,12 +284,14 @@ function SnakeGame(containerId, userConfig) {
 			}
 		}
 
+		// Update scoreboard with specified score, replacing high score if applicable.
 		this.updateScore = function(value) {
 			this.score = value;
 			if (value > this.highscore)
 				this.highscore = value;
 		}
 
+		// Check if specified score is in top ten scores.
 		this.isTopScore = function(value) {
 			if (this.topscores.length < 10)
 				return true;
@@ -282,6 +300,7 @@ function SnakeGame(containerId, userConfig) {
 			return false;
 		}
 		
+		// Compare function passed to Array.sort() to sort by highest score.
 		function comparator(a, b) {
 			return b.score - a.score;
 		}
@@ -293,6 +312,7 @@ function SnakeGame(containerId, userConfig) {
 	function View() {
 		var $parentElem = container;
 		var $board, $score, $hscore, $hst;
+		var $overlayContent;
 		var $overlay = $(
 			'<div class="overlay" id="game-overlay">' +
 			  '<div class="overlay-wrapper">' +
@@ -303,9 +323,10 @@ function SnakeGame(containerId, userConfig) {
 			  '</div>' +
 			'</div>'
 		);
-		var $overlayContent;
+		// Wrapper to exclude high scores table from overlay
 		var $gameWrapper = $('<div class="game-wrapper" />').appendTo($parentElem);
 
+		// Initialization function
 		this.init = function() {
 			insertScoreboard();
 			insertBoard();
@@ -326,6 +347,7 @@ function SnakeGame(containerId, userConfig) {
 				throw "Cannot render state: invalid state";
 		}
 
+		// Render current frame during play state.
 		this.renderFrame = function() {
 			if (state == constants.STATE_PLAYING) {
 				for (var r = 0; r < config.game_height; r++)
@@ -337,6 +359,7 @@ function SnakeGame(containerId, userConfig) {
 			}
 		}
 
+		// Render table of specified scores.
 		this.renderHighScores = function(scores) {
 			if ($hst.find('tbody').length > 0)
 				$hst.find('tbody').remove();
@@ -349,7 +372,7 @@ function SnakeGame(containerId, userConfig) {
 			}
 		}
 
-		// Add scoreboard elements to $parentElem.
+		// Add scoreboard elements to $gameWrapper.
 		function insertScoreboard() {
 			var $sb = $('<div class="scoreboard text-center" id="game-sb">' +
 						'<span class="hidden-xs">Snake</span></div>');
@@ -361,7 +384,7 @@ function SnakeGame(containerId, userConfig) {
 			$sb.appendTo($gameWrapper);
 		}
 
-		// Add board elements to $parentElem.
+		// Add board elements to $gameWrapper.
 		function insertBoard() {
 			$board = $('<table class="board" id="game-board" />');
 			$board.css('background-color', config.board_color);
@@ -375,6 +398,7 @@ function SnakeGame(containerId, userConfig) {
 			$board.appendTo($gameWrapper);
 		}
 
+		// Add high scores table elements to $parentElem.
 		function insertScoreTable() {
 			var $hstContainer = $('<div class="scoretable-container">' +
 								    '<div class="title">High Scores</div>' +
@@ -385,6 +409,7 @@ function SnakeGame(containerId, userConfig) {
 			$hstContainer.appendTo($parentElem);
 		}
 
+		// Render overlay with start information.
 		function renderStartState() {
 			$overlayContent = $(
 				'<p class="title">simple snake</p>' +
@@ -397,6 +422,7 @@ function SnakeGame(containerId, userConfig) {
 			$overlay.appendTo($gameWrapper);
 		}
 
+		// Render overlay with game over information.
 		function renderEndState() {
 			var $btn = $overlay.find('#game-start-btn').detach();
 			$overlay.find('div:only-child:last').children().detach();
@@ -417,6 +443,7 @@ function SnakeGame(containerId, userConfig) {
 			$overlay.appendTo($gameWrapper);
 		}
 
+		// Remove overlay and reset game board to first frame.
 		function renderPlayState() {
 			$('#game-board td').css('background-color', config.board_color);
 			$overlay.detach();
@@ -430,6 +457,7 @@ function SnakeGame(containerId, userConfig) {
 	function Controller() {
 		var intervalHandle, listening, direction, played;
 
+		// Initialization function
 		this.init = function() {
 			listening = played = false;
 			direction = snake.getDirection();
@@ -438,9 +466,9 @@ function SnakeGame(containerId, userConfig) {
 			view.init();
 
 			$('#game-start-btn').click($.proxy(this.startGame, this));
-			$('#game-resume-btn').click($.proxy(this.resumeGame, this));
 		}
 
+		// Start game by setting state and async function.
 		this.startGame = function() {
 			if (played)
 				this.resetGame();
@@ -450,12 +478,14 @@ function SnakeGame(containerId, userConfig) {
 			intervalHandle = setInterval($.proxy(this.playFrame, this), config.interval);
 		}
 
+		// Reset game to initial state.
 		this.resetGame = function() {
 			board = new Board(config.game_width, config.game_height);
 			snake = new Snake();
 			direction = snake.getDirection();
 		}
 
+		// End game by clearing handlers and setting state.
 		this.endGame = function() {
 			clearInterval(intervalHandle);
 			stopListening();
@@ -470,6 +500,7 @@ function SnakeGame(containerId, userConfig) {
 			});
 		}
 
+		// Handle game updates for each frame.
 		this.playFrame = function() {
 			if (direction != snake.getDirection()) {
 				// Snake will not turn directly into wall if lined up against one.
@@ -489,6 +520,7 @@ function SnakeGame(containerId, userConfig) {
 			}
 		}
 
+		// Bind key and touch listeners.
 		function startListening() {
 			if (!listening) {
 				$(window).keydown(keyPressed);
@@ -497,6 +529,7 @@ function SnakeGame(containerId, userConfig) {
 			}
 		}
 
+		// Unbind key and touch listeners.
 		function stopListening() {
 			if (listening) {
 				$(window).off('keydown', keyPressed);
@@ -505,6 +538,7 @@ function SnakeGame(containerId, userConfig) {
 			}
 		}
 
+		// Handle key and touch input to control snake.
 		function keyPressed(e) {
 			if (e.keyCode) {
 				switch (e.keyCode) {
@@ -550,9 +584,7 @@ function SnakeGame(containerId, userConfig) {
 		}
 	}
 
-	/**
-	  * Helper function used to merge objects.
-	  */
+	// Helper function used to merge default and configuration objects.
 	function merge(defaults, overrides) {
 		var result = {};
 		for (key in defaults) {

@@ -7,6 +7,7 @@
 		<link rel="stylesheet" href="css/ui.css">
 		<link rel="stylesheet" href="css/game.css">
 		<script src="vendor/jquery/jquery-2.1.0.min.js"></script>
+		<!-- Bootstrap.js only used for collapseable navbar on mobile -->
 		<script src="vendor/bootstrap/bootstrap.min.js"></script>
 		<script src="js/app.js"></script>
 	</head>
@@ -47,6 +48,8 @@
 		</header>
 		<section class="container main-content">
 			<div class="game-container" id="game-container" role="game">
+				<!-- Game is loaded into page dynamically for easy customization
+				     of page layout and portability of code. -->
 				<script type="text/javascript">
 					$(function() {
 						var config = {};
