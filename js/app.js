@@ -6,11 +6,8 @@ function SnakeGame(containerId, userConfig) {
 	var defaults = {
 		GAME_WIDTH   : 30,
 		GAME_HEIGHT  : 30,
-		SCREEN_WIDTH : 720,
-		SCREEN_HEIGHT: 720,
-		SBOARD_COLOR : "#006",
-		BOARD_COLOR  : "white",
-		SNAKE_COLOR  : "black",
+		BOARD_COLOR  : "black",
+		SNAKE_COLOR  : "white",
 		interval     : 100
 	};
 
@@ -34,9 +31,6 @@ function SnakeGame(containerId, userConfig) {
 
 	container = $(containerId);
 	config = userConfig ? merge(defaults, userConfig) : defaultConfig;
-
-	this.CELL_WIDTH  = config.SCREEN_WIDTH / config.GAME_WIDTH;
-	this.CELL_HEIGHT = config.SCREEN_HEIGHT / config.GAME_HEIGHT;
 
 	this.init = function() {
 		state      = constants.STATE_START;
@@ -263,6 +257,9 @@ function SnakeGame(containerId, userConfig) {
 
 				localStorage.setItem('topscores', JSON.stringify(this.topscores));
 			}
+			else {
+				console.warn('Local storage not found, scores will not be saved.');
+			}
 		}
 
 		this.updateScore = function(value) {
@@ -301,6 +298,7 @@ function SnakeGame(containerId, userConfig) {
 			'</div>'
 		);
 		var $overlayContent;
+		var $gameWrapper = $('<div class="game-wrapper" />').appendTo($parentElem);
 
 		this.init = function() {
 			insertScoreboard();
@@ -316,8 +314,6 @@ function SnakeGame(containerId, userConfig) {
 				$.proxy(renderStartState, this)();
 			else if (state == constants.STATE_END)
 				$.proxy(renderEndState, this)();
-			else if (state == constants.STATE_PAUSED)
-				$.proxy(renderPauseState, this)();
 			else if (state == constants.STATE_PLAYING)
 				$.proxy(renderPlayState, this)();
 			else
@@ -349,14 +345,14 @@ function SnakeGame(containerId, userConfig) {
 
 		// Add scoreboard elements to $parentElem.
 		function insertScoreboard() {
-			var $sb = $('<div class="scoreboard text-center" id="game-sb">Snake</div>');
-			$sb.css('background-color', config.SBOARD_COLOR);
+			var $sb = $('<div class="scoreboard text-center" id="game-sb">' +
+						'<span class="hidden-xs">Snake</span></div>');
 			$score  = $('<div class="score vertically-center pull-left" ' +
 						'id="game-sb-score">Score: ' + scoreboard.score + '</div>');
 			$hscore = $('<div class="score vertically-center pull-right" ' +
 						'id="game-sb-hscore">High Score: ' + scoreboard.highscore + '</div>');
 			$sb.append($score).append($hscore);
-			$sb.appendTo($parentElem);
+			$sb.appendTo($gameWrapper);
 		}
 
 		// Add board elements to $parentElem.
@@ -370,7 +366,7 @@ function SnakeGame(containerId, userConfig) {
 				}
 				$row.appendTo($board);
 			}
-			$board.appendTo($parentElem);
+			$board.appendTo($gameWrapper);
 		}
 
 		function insertScoreTable() {
@@ -380,22 +376,24 @@ function SnakeGame(containerId, userConfig) {
 			$hst = $('<table class="table scoretable" id="game-scoretable"><thead>' +
 					 '<tr><th>#</th><th>Name</th><th>Score</th></tr></thead></table>');
 			$hst.appendTo($hstContainer);
-			$hstContainer.appendTo($('.main-content'));
+			$hstContainer.appendTo($parentElem);
 		}
 
 		function renderStartState() {
 			$overlayContent = $(
-				'<p class="title">begin game</p>' +
+				'<p class="title">simple snake</p>' +
+				'<p>Use arrow keys or tap to control</p>' +
 				'<button type="button" class="btn btn-primary btn-lg"' +
 				        'id="game-start-btn">Start Game</button>'
 			);
 			
 			$overlayContent.appendTo($overlay.find('div:only-child:last'));
-			$overlay.appendTo($parentElem);
+			$overlay.appendTo($gameWrapper);
 		}
 
 		function renderEndState() {
-			$overlayContent.remove();
+			var $btn = $overlay.find('#game-start-btn').detach();
+			$overlay.find('div:only-child:last').children().detach();
 			$overlayContent = $('<p class="title">game over</p>' +
 								'<p>Score: '+ scoreboard.score + '</p>');
 			$overlayContent.appendTo($overlay.find('div:only-child:last'));
@@ -403,19 +401,19 @@ function SnakeGame(containerId, userConfig) {
 			if (scoreboard.isTopScore(scoreboard.score)) {
 				$('<p>New high score!<br><label for="game-highscoreInput">Enter initials:</label>' +
 				  '<input type="text" id="game-highscoreInput" value="AAA" maxlength="3"><br>' +
-				  '<input type="submit" id="game-highscoreSubmit" class="btn btn-primary"></p>')
-				.appendTo($overlay.find('div:only-child:last'));
+				  '<input type="submit" id="game-highscoreSubmit" ' +
+				  					   'class="btn btn-default btn-sm" value="Submit"></p>')
+					.appendTo($overlay.find('div:only-child:last'));
 			}
 
-			$overlay.appendTo($parentElem);
-		}
+			$btn.text('Play Again').appendTo($overlay.find('div:only-child:last'));
 
-		function renderPauseState() {
-
+			$overlay.appendTo($gameWrapper);
 		}
 
 		function renderPlayState() {
-			$overlay.remove();
+			$('#game-board td').css('background-color', config.BOARD_COLOR);
+			$overlay.detach();
 			this.renderFrame();
 		}
 	}
@@ -424,10 +422,10 @@ function SnakeGame(containerId, userConfig) {
 	  * Controller class responsible for running the game and handling user input.
 	  */
 	function Controller() {
-		var intervalHandle, listening, direction;
+		var intervalHandle, listening, direction, played;
 
 		this.init = function() {
-			listening = false;
+			listening = played = false;
 			direction = snake.getDirection();
 
 			scoreboard.loadScores();
@@ -438,26 +436,25 @@ function SnakeGame(containerId, userConfig) {
 		}
 
 		this.startGame = function() {
-			console.log("Start game!");
+			if (played)
+				this.resetGame();
 			state = constants.STATE_PLAYING;
 			view.renderState();
 			startListening();
 			intervalHandle = setInterval($.proxy(this.playFrame, this), config.interval);
 		}
 
-		this.pauseGame = function() {
-
-		}
-
-		this.resumeGame = function() {
-
+		this.resetGame = function() {
+			board = new Board(config.GAME_WIDTH, config.GAME_HEIGHT);
+			snake = new Snake();
+			direction = snake.getDirection();
 		}
 
 		this.endGame = function() {
-			console.log("End game!");
 			clearInterval(intervalHandle);
 			stopListening();
 			state = constants.STATE_END;
+			played = true;
 			view.renderState();
 			$('#game-highscoreSubmit').one('click', function(e) {
 				e.preventDefault();

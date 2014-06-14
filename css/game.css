@@ -1,4 +1,9 @@
 .game-container {
+	margin: 0 auto;
+	max-width: 720px;
+}
+
+.game-container .game-wrapper {
 	position: relative;
 }
 
@@ -16,7 +21,7 @@
 }
 
 .game-container .overlay .overlay-bg {
-	background-color: #aaa;
+	background-color: #B6C4DE;
 	width: 50%;
 	height: 50%;
 	border-radius: 25px;
@@ -27,9 +32,10 @@
 	width: 720px;
 	height: 50px;
 	margin: 0 auto;
-	color: white;
+	color: #DDD;
 	padding: 5px 20px;
 	font-size: 2em;
+	background-color: #1746AA;
 }
 
 .scoreboard .score {
@@ -37,23 +43,23 @@
 	font-size: 0.5em;
 }
 
-.scoreboard .score:first-child {
+.scoreboard div.score:first-of-type {
 	text-align: left;
 }
 
-.scoreboard .score:last-child {
+.scoreboard div.score:last-of-type {
 	text-align: right;
 }
 
 .board {
-	table-layout: fixed;
 	width: 720px;
-	border: 1px solid #aaa;
+	border: 1px solid #AAA;
 	margin: 0 auto;
 }
 
 .board td {
-	width: 30%;
+	width: 3.33%; /* 30 columns -- 100%/30 = 3.33% */
+	height: 1px;  /* Firefox requires a height value to render properly */
 }
 
 .scoretable-container {
