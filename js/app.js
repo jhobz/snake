@@ -1,14 +1,18 @@
 /**
   * Wrapper object for game. Used to separate game from global namespace.
+  *
+  * @param containerId id of element within which to render game
+  * @param userConfig user override of configuration options
   */
 function SnakeGame(containerId, userConfig) {
 
+	// Default configuration options
 	var defaults = {
-		GAME_WIDTH   : 30,
-		GAME_HEIGHT  : 30,
-		BOARD_COLOR  : "black",
-		SNAKE_COLOR  : "white",
-		interval     : 100
+		game_width   : 30,
+		game_height  : 30,
+		board_color  : "black",
+		snake_color  : "white",
+		interval     : 100 // milliseconds
 	};
 
 	var constants = {
@@ -27,14 +31,16 @@ function SnakeGame(containerId, userConfig) {
 		STATE_END        : 4
 	};
 
+	// Global variables used across the application
 	var container, config, state, board, snake, scoreboard, view, controller;
 
 	container = $(containerId);
-	config = userConfig ? merge(defaults, userConfig) : defaultConfig;
+	config = userConfig ? merge(defaults, userConfig) : defaults;
 
+	// Initialization function
 	this.init = function() {
 		state      = constants.STATE_START;
-		board      = new Board(config.GAME_WIDTH, config.GAME_HEIGHT);
+		board      = new Board(config.game_width, config.game_height);
 		scoreboard = new Scoreboard();
 		snake      = new Snake();
 		view       = new View();
@@ -162,7 +168,7 @@ function SnakeGame(containerId, userConfig) {
 		var heading = direction || constants.DIRECTION_DEFAULT;
 		var snakeId = this.generateId();
 		var length = 1;
-		this.color = config.SNAKE_COLOR;
+		this.color = config.snake_color;
 
 		if (board.isFreeSpace(head))
 			board.set(head, snakeId);
@@ -322,8 +328,8 @@ function SnakeGame(containerId, userConfig) {
 
 		this.renderFrame = function() {
 			if (state == constants.STATE_PLAYING) {
-				for (var r = 0; r < config.GAME_HEIGHT; r++)
-					for (var c = 0; c < config.GAME_WIDTH; c++)
+				for (var r = 0; r < config.game_height; r++)
+					for (var c = 0; c < config.game_width; c++)
 						if (board.at(new Point(c, r)) == snake.getId())
 							$('#' + r + 'x' + c).css('background', snake.color);
 				$score.text('Score: ' + scoreboard.score);
@@ -358,10 +364,10 @@ function SnakeGame(containerId, userConfig) {
 		// Add board elements to $parentElem.
 		function insertBoard() {
 			$board = $('<table class="board" id="game-board" />');
-			$board.css('background-color', config.BOARD_COLOR);
-			for (var r = 0; r < config.GAME_HEIGHT; r++) {
+			$board.css('background-color', config.board_color);
+			for (var r = 0; r < config.game_height; r++) {
 				var $row = $('<tr />');
-				for (var c = 0; c < config.GAME_WIDTH; c++) {
+				for (var c = 0; c < config.game_width; c++) {
 					$row.append('<td id="' + r + 'x' + c +'" />');
 				}
 				$row.appendTo($board);
@@ -412,7 +418,7 @@ function SnakeGame(containerId, userConfig) {
 		}
 
 		function renderPlayState() {
-			$('#game-board td').css('background-color', config.BOARD_COLOR);
+			$('#game-board td').css('background-color', config.board_color);
 			$overlay.detach();
 			this.renderFrame();
 		}
@@ -445,7 +451,7 @@ function SnakeGame(containerId, userConfig) {
 		}
 
 		this.resetGame = function() {
-			board = new Board(config.GAME_WIDTH, config.GAME_HEIGHT);
+			board = new Board(config.game_width, config.game_height);
 			snake = new Snake();
 			direction = snake.getDirection();
 		}
@@ -522,24 +528,20 @@ function SnakeGame(containerId, userConfig) {
 				e.preventDefault();
 			}
 			else { // touchevent
-				var targetId = e.target.id;
-				var xIndex   = targetId.indexOf('x');
 				var spoint   = snake.getPoint();
-				var srow     = spoint.y;
-				var scol     = spoint.x;
-				var trow     = parseInt(targetId.substring(0, xIndex));
-				var tcol     = parseInt(targetId.substring(xIndex + 1));
-
+				var offset = $('#' + spoint.y + 'x' + spoint.x).offset();
+				var touch = e.originalEvent.touches[0];
+				
 				// Determine new direction
 				if (direction == constants.DIRECTION_LEFT ||
 					direction == constants.DIRECTION_RIGHT) {
-					if (trow - srow <= 0)
+					if (touch.pageY - offset.top <= 0)
 						direction = constants.DIRECTION_UP;
 					else
 						direction = constants.DIRECTION_DOWN;
 				}
 				else {
-					if (tcol - scol <= 0)
+					if (touch.pageX - offset.left <= 0)
 						direction = constants.DIRECTION_LEFT;
 					else
 						direction = constants.DIRECTION_RIGHT;
